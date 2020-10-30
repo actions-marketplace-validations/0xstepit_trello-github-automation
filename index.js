@@ -60,6 +60,9 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
       }
 
       createCard(apiKey, apiToken, listId, cardParams).then(function(response) {
+        // Remove cover from card 
+        const cardId = response.id;
+        removeCover(apiKey, apiToken, cardId);
         console.dir(response);
       });
     });
@@ -205,7 +208,8 @@ function createCard(apiKey, apiToken, listId, params) {
       'desc': params.description,
       'urlSource': params.url,
       'idMembers': params.memberIds,
-      'idLabels': params.labelIds
+      'idLabels': params.labelIds,
+      'idAttachmentCover': null
     },
     json: true
   }
@@ -227,6 +231,25 @@ function putCard(apiKey, apiToken, cardId, params) {
     form: {
       'idList': params.destinationListId,
       'idMembers': params.memberIds,
+    }
+  }
+  return new Promise(function(resolve, reject) {
+    request(options)
+      .then(function(body) {
+        resolve(JSON.parse(body));
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+  });
+}
+
+function removeCover(apiKey, apiToken, cardId) {
+  const options = {
+    method: 'PUT',
+    url: `https://api.trello.com/1/cards/${cardId}?key=${apiKey}&token=${apiToken}`,
+    form: {
+      'idAttachmentCover': null
     }
   }
   return new Promise(function(resolve, reject) {
