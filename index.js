@@ -184,6 +184,7 @@ function getBoardId(apiKey, apiToken, boardName) {
   for (var ii=0; ii<boards.length; ii++) {
     var board = boards[ii];
     if (board.name.toLowerCase() == boardName) {
+      console.log("Board found! ID: " + board.id)
       return board.id
     }
   }
@@ -191,6 +192,7 @@ function getBoardId(apiKey, apiToken, boardName) {
 }
 
 function getToDoList(apiKey, apiToken, boardId) {
+  console.log("Enter getToDo")
   // Get the list ID of the "To Do" list in the board
   var lists = getLists(apiKey, apiToken, boardId);
   for (var ii=0; ii<lists.length; ii++) {
@@ -203,6 +205,7 @@ function getToDoList(apiKey, apiToken, boardId) {
 }
 
 function getBoards(apiKey, apiToken) {
+  console.log("Enter getBoards")
   return new Promise(function(resolve, reject) {
     request(`https://api.trello.com/1/members/me/boards?fields=name,id&key=${apiKey}&token=${apiToken}`)
       .then(function(body) {
