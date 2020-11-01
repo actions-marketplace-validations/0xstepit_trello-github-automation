@@ -43,9 +43,10 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
   if (boardName) {
     // split boardName in multiple parts if " & " is present
     var names = boardName.split(" & ");
-    for (var ii=0; ii<names.length; ii++) {
-      var name = names[ii];
-      getBoards(apiKey, apiToken).then(function(response) {    
+    console.log("Issue duplicates: " + names.length);
+    getBoards(apiKey, apiToken).then(function(response) {    
+      for (var ii=0; ii<names.length; ii++) {
+        var name = names[ii];
         var boardId = getBoardId(response, name); 
         if (boardId) {
           getLists(apiKey, apiToken, boardId).then(function(response) { 
@@ -87,8 +88,8 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
             }
           });
         } 
-      });
-    }
+      }
+    });
   }
 }
 
