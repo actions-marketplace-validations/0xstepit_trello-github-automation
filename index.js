@@ -40,17 +40,20 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
 
   // remove boardName from the issue title
   title = title.replace(boardName, "").replace("[] ","");
+  var name;
+  var boardId;
+  var listId;
   if (boardName) {
     // split boardName in multiple parts if " & " is present
     var names = boardName.split(" & ");
     console.log("Issue duplicates: " + names.length);
     getBoards(apiKey, apiToken).then(function(response) {    
       for (var ii=0; ii<names.length; ii++) {
-        var name = names[ii];
-        var boardId = getBoardId(response, name); 
+        name = names[ii];
+        boardId = getBoardId(response, name); 
         if (boardId) {
           getLists(apiKey, apiToken, boardId).then(function(response) { 
-            var listId = getToDoList(response, boardId);
+            listId = getToDoList(response, boardId);
             if (listId) {
               getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
                 const trelloLabels = response;
@@ -196,7 +199,7 @@ function getBoardId(boards, boardName) {
     for (var ii=0; ii<boards.length; ii++) {
       var board = boards[ii];
       if (board.name.toLowerCase() == boardName.toLowerCase()) {
-        console.log("Board found!" + boardName);
+        console.log("Board found! " + boardName);
         return board.id
       }
     }
