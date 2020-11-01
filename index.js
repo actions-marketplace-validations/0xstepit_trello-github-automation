@@ -196,10 +196,11 @@ function getBoardId(boards, boardName) {
     for (var ii=0; ii<boards.length; ii++) {
       var board = boards[ii];
       if (board.name.toLowerCase() == boardName.toLowerCase()) {
-        console.log("Board found!")
+        console.log("Board found!" + boardName);
         return board.id
       }
     }
+    console.log("Board not found! " + boardName);
     return null
 }
 
