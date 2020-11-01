@@ -38,10 +38,14 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
   var boardName = getBoardName(title);
   console.log(boardName);
   if (boardName) {
-    var boardId = getBoardId(apiKey, apiToken, boardName);
-    console.log("Board ID: " + boardId);
-    var listId = getToDoList(apiKey, apiToken, boardId);
-    console.log("List ID: " + listId);
+    getBoardId(apiKey, apiToken, boardName).then(function(response) {
+      const boardId = response;
+      console.log("Board ID: " + boardId);
+      getToDoList(apiKey, apiToken, boardId).then(function(response) {
+        const listId = response;
+        console.log("List ID: " + listId);
+      });
+    });
 
     if (boardId && listId) {
       getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
