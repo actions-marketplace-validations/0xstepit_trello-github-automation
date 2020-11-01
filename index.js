@@ -39,7 +39,9 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
   console.log(boardName);
   if (boardName) {
     var boardId = getBoardId(apiKey, apiToken, boardName);
+    console.log("Board ID: " + boardId);
     var listId = getToDoList(apiKey, apiToken, boardId);
+    console.log("List ID: " + listId);
 
     if (boardId && listId) {
       getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
