@@ -36,6 +36,7 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
 
   // get board name and ID, then listId of To Do list.
   var boardName = getBoardName(title);
+  console.log(boardName);
   if (boardName) {
     var boardId = getBoardId(apiKey, apiToken, boardName);
     var listId = getToDoList(apiKey, apiToken, boardId);
@@ -213,7 +214,7 @@ function getBoards(apiKey, apiToken) {
 
 function getLists(apiKey, apiToken, boardId) {
   return new Promise(function(resolve, reject) {
-    request(`https://api.trello.com/1/boards/${boardId}/lists&key=${apiKey}&token=${apiToken}`)
+    request(`https://api.trello.com/1/boards/${boardId}/lists?key=${apiKey}&token=${apiToken}`)
       .then(function(body) {
         resolve(JSON.parse(body));
       })
