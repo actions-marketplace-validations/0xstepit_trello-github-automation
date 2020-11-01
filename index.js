@@ -186,7 +186,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId) {
 function getBoardName(title) {
   var board = title.match(/\[.+\]/g);
   if (board) {
-    return board[0].replace("[","").replace("]","").toLowerCase()
+    return board[0].replace("[","").replace("]","")
   }
   return null
 }
@@ -195,7 +195,7 @@ function getBoardId(boards, boardName) {
     console.log("Boards length: " + boards.length);
     for (var ii=0; ii<boards.length; ii++) {
       var board = boards[ii];
-      if (board.name.toLowerCase() == boardName) {
+      if (board.name.toLowerCase() == boardName.toLowerCase()) {
         console.log("Board found!")
         return board.id
       }
