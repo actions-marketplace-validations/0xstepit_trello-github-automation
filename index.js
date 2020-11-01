@@ -25,7 +25,7 @@ try {
 }
 
 function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
-  const listId = process.env['TRELLO_LIST_ID'];
+  // const listId = process.env['TRELLO_LIST_ID'];
   const issue = github.context.payload.issue
   const number = issue.number;
   const title = issue.title;
@@ -34,39 +34,48 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
   const assignees = issue.assignees.map(assignee => assignee.login);
   const issueLabelNames = issue.labels.map(label => label.name);
 
-  getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
-    const trelloLabels = response;
-    const trelloLabelIds = [];
-    issueLabelNames.forEach(function(issueLabelName) {
-      trelloLabels.forEach(function(trelloLabel) {
-        if (trelloLabel.name == issueLabelName) {
-          trelloLabelIds.push(trelloLabel.id);
-        }
-      });
-    });
+  // get board name and ID, then listId of To Do list.
+  var boardName = getBoardName(title);
+  if (boardName) {
+    var boardId = getBoardId(apiKey, apiToken, boardName);
+    var listId = getToDoList(apiKey, apiToken, boardId);
 
-    getMembersOfBoard(apiKey, apiToken, boardId).then(function(response) {
-      const members = response;
-      const memberIds = [];
-      assignees.forEach(function(assignee) {
-        members.forEach(function(member) {
-          if (member.username == assignee) {
-            memberIds.push(member.id)
+    if (boardId && listId) {
+      getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
+        const trelloLabels = response;
+        const trelloLabelIds = [];
+        issueLabelNames.forEach(function(issueLabelName) {
+          trelloLabels.forEach(function(trelloLabel) {
+            if (trelloLabel.name == issueLabelName) {
+              trelloLabelIds.push(trelloLabel.id);
+            }
+          });
+        });
+
+        getMembersOfBoard(apiKey, apiToken, boardId).then(function(response) {
+          const members = response;
+          const memberIds = [];
+          assignees.forEach(function(assignee) {
+            members.forEach(function(member) {
+              if (member.username == assignee) {
+                memberIds.push(member.id)
+              }
+            });
+          });
+          const cardParams = {
+            number: number, title: title, description: description, url: url, memberIds: memberIds.join(), labelIds: trelloLabelIds.join()
           }
+
+          createCard(apiKey, apiToken, listId, cardParams).then(function(response) {
+            // Remove cover from card 
+            const cardId = response.id;
+            removeCover(apiKey, apiToken, cardId);
+            console.dir(response);
+          });
         });
       });
-      const cardParams = {
-        number: number, title: title, description: description, url: url, memberIds: memberIds.join(), labelIds: trelloLabelIds.join()
-      }
-
-      createCard(apiKey, apiToken, listId, cardParams).then(function(response) {
-        // Remove cover from card 
-        const cardId = response.id;
-        removeCover(apiKey, apiToken, cardId);
-        console.dir(response);
-      });
-    });
-  });
+    }
+  }
 }
 
 function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId) {
@@ -159,6 +168,61 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId) {
   });
 }
 
+function getBoardName(title) {
+  var board = title.match(/\[.+\]/g);
+  if (board) {
+    return board[0].replace("[","").replace("]","").toLowerCase()
+  }
+  return null
+}
+
+function getBoardId(apiKey, apiToken, boardName) {
+  var boards = getBoards(apiKey, apiToken);
+  for (var ii=0; ii<boards.length; ii++) {
+    var board = boards[ii];
+    if (board.name.toLowerCase() == boardName) {
+      return board.id
+    }
+  }
+  return null
+}
+
+function getToDoList(apiKey, apiToken, boardId) {
+  // Get the list ID of the "To Do" list in the board
+  var lists = getLists(apiKey, apiToken, boardId);
+  for (var ii=0; ii<lists.length; ii++) {
+    var myList = lists[ii];
+    if (myList.name.toLowerCase() == "to do") {
+      return myList.id
+    }
+  }
+  return null
+}
+
+function getBoards(apiKey, apiToken) {
+  return new Promise(function(resolve, reject) {
+    request(`https://api.trello.com/1/members/me/boards?fields=name,id&key=${apiKey}&token=${apiToken}`)
+      .then(function(body) {
+        resolve(JSON.parse(body));
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+  });
+}
+
+function getLists(apiKey, apiToken, boardId) {
+  return new Promise(function(resolve, reject) {
+    request(`https://api.trello.com/1/boards/${boardId}/lists&key=${apiKey}&token=${apiToken}`)
+      .then(function(body) {
+        resolve(JSON.parse(body));
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+  });
+}
+
 function getLabelsOfBoard(apiKey, apiToken, boardId) {
   return new Promise(function(resolve, reject) {
     request(`https://api.trello.com/1/boards/${boardId}/labels?key=${apiKey}&token=${apiToken}`)
@@ -209,7 +273,7 @@ function createCard(apiKey, apiToken, listId, params) {
       'urlSource': params.url,
       'idMembers': params.memberIds,
       'idLabels': params.labelIds,
-      'idAttachmentCover': null
+      'pos': 1
     },
     json: true
   }
