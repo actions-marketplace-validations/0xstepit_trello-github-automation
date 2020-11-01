@@ -184,29 +184,33 @@ function getBoardName(title) {
 }
 
 function getBoardId(apiKey, apiToken, boardName) {
-  var boards = getBoards(apiKey, apiToken);
-  console.log("Boards length: " + boards.length);
-  for (var ii=0; ii<boards.length; ii++) {
-    var board = boards[ii];
-    if (board.name.toLowerCase() == boardName) {
-      console.log("Board found! ID: " + board.id)
-      return board.id
+  getBoards(apiKey, apiToken).then(function(response) {
+    const boards = response;
+    console.log("Boards length: " + boards.length);
+    for (var ii=0; ii<boards.length; ii++) {
+      var board = boards[ii];
+      if (board.name.toLowerCase() == boardName) {
+        console.log("Board found! ID: " + board.id)
+        return board.id
+      }
     }
-  }
-  return null
+    return null
+  });
 }
 
 function getToDoList(apiKey, apiToken, boardId) {
   console.log("Enter getToDo")
   // Get the list ID of the "To Do" list in the board
-  var lists = getLists(apiKey, apiToken, boardId);
-  for (var ii=0; ii<lists.length; ii++) {
-    var myList = lists[ii];
-    if (myList.name.toLowerCase() == "to do") {
-      return myList.id
+  getLists(apiKey, apiToken, boardId).then(function(response) {
+    const lists = response;
+    for (var ii=0; ii<lists.length; ii++) {
+      var myList = lists[ii];
+      if (myList.name.toLowerCase() == "to do") {
+        return myList.id
+      }
     }
-  }
-  return null
+    return null
+  });
 }
 
 function getBoards(apiKey, apiToken) {
