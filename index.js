@@ -181,6 +181,7 @@ function getBoardName(title) {
 
 function getBoardId(apiKey, apiToken, boardName) {
   var boards = getBoards(apiKey, apiToken);
+  console.log("Boards length: " + boards.length);
   for (var ii=0; ii<boards.length; ii++) {
     var board = boards[ii];
     if (board.name.toLowerCase() == boardName) {
@@ -210,6 +211,7 @@ function getBoards(apiKey, apiToken) {
     request(`https://api.trello.com/1/members/me/boards?fields=name,id&key=${apiKey}&token=${apiToken}`)
       .then(function(body) {
         resolve(JSON.parse(body));
+        console.log("Get Boards request success!");
       })
       .catch(function(error) {
         reject(error);
