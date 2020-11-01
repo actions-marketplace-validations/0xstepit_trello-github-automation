@@ -28,7 +28,7 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
   // const listId = process.env['TRELLO_LIST_ID'];
   const issue = github.context.payload.issue
   const number = issue.number;
-  const title = issue.title;
+  var title = issue.title;
   const description = issue.body;
   const url = issue.html_url;
   const assignees = issue.assignees.map(assignee => assignee.login);
@@ -38,52 +38,58 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
   var boardName = getBoardName(title);
   console.log(boardName);
 
+  // remove boardName from the issue title
+  title = title.replace(boardName, "").replace("[] ","");
   if (boardName) {
-    getBoards(apiKey, apiToken).then(function(response) {    
-      var boardId = getBoardId(response, boardName); 
-      if (boardId) {
-        getLists(apiKey, apiToken, boardId).then(function(response) { 
-          var listId = getToDoList(response, boardId);
-          if (listId) {
-            getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
-              const trelloLabels = response;
-              const trelloLabelIds = [];
-              issueLabelNames.forEach(function(issueLabelName) {
-                trelloLabels.forEach(function(trelloLabel) {
-                  if (trelloLabel.name == issueLabelName) {
-                    trelloLabelIds.push(trelloLabel.id);
-                  }
-                });
-              });
-      
-              getMembersOfBoard(apiKey, apiToken, boardId).then(function(response) {
-                const members = response;
-                const memberIds = [];
-                assignees.forEach(function(assignee) {
-                  members.forEach(function(member) {
-                    if (member.username == assignee) {
-                      memberIds.push(member.id)
+    // split boardName in multiple parts if " & " is present
+    var names = boardName.split(" & ");
+    for (var ii=0; ii<names.length; ii++) {
+      var name = names[ii];
+      getBoards(apiKey, apiToken).then(function(response) {    
+        var boardId = getBoardId(response, name); 
+        if (boardId) {
+          getLists(apiKey, apiToken, boardId).then(function(response) { 
+            var listId = getToDoList(response, boardId);
+            if (listId) {
+              getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
+                const trelloLabels = response;
+                const trelloLabelIds = [];
+                issueLabelNames.forEach(function(issueLabelName) {
+                  trelloLabels.forEach(function(trelloLabel) {
+                    if (trelloLabel.name == issueLabelName) {
+                      trelloLabelIds.push(trelloLabel.id);
                     }
                   });
                 });
-                const cardParams = {
-                  number: number, title: title, description: description, url: url, memberIds: memberIds.join(), labelIds: trelloLabelIds.join()
-                }
-      
-                createCard(apiKey, apiToken, listId, cardParams).then(function(response) {
-                  // Remove cover from card 
-                  const cardId = response.id;
-                  removeCover(apiKey, apiToken, cardId);
-                  console.dir(response);
+        
+                getMembersOfBoard(apiKey, apiToken, boardId).then(function(response) {
+                  const members = response;
+                  const memberIds = [];
+                  assignees.forEach(function(assignee) {
+                    members.forEach(function(member) {
+                      if (member.username == assignee) {
+                        memberIds.push(member.id)
+                      }
+                    });
+                  });
+                  const cardParams = {
+                    number: number, title: title, description: description, url: url, memberIds: memberIds.join(), labelIds: trelloLabelIds.join()
+                  }
+        
+                  createCard(apiKey, apiToken, listId, cardParams).then(function(response) {
+                    // Remove cover from card 
+                    const cardId = response.id;
+                    removeCover(apiKey, apiToken, cardId);
+                    console.dir(response);
+                  });
                 });
               });
-            });
-          }
-        });
-      } 
-    });
+            }
+          });
+        } 
+      });
+    }
   }
-
 }
 
 function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId) {
