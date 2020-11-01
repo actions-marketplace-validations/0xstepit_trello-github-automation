@@ -80,12 +80,9 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
             });
           });
         }
-      }
-
       });
     });
-
-
+  }
 }
 
 function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId) {
