@@ -40,7 +40,7 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
   console.log(boardName);
 
   // remove boardName from the issue title
-  title = title.replace(boardName, "").replace("[] ","");
+  title = title.replace(boardName, "").replace("[]","");
   var name;
   var boardId;
   var listId;
