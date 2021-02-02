@@ -26,6 +26,7 @@ try {
 }
 
 function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
+  const bugLabels = JSON.parse(process.env['GITHUB_BUG_LABELS']);
   // const listId = process.env['TRELLO_LIST_ID'];
   const issue = github.context.payload.issue
   const number = issue.number;
@@ -34,6 +35,16 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
   const url = issue.html_url;
   const assignees = issue.assignees.map(assignee => assignee.login);
   const issueLabelNames = issue.labels.map(label => label.name);
+  var isBug = false;
+  issueLabelNames.forEach(function(issueLabelName){
+    bugLabels.forEach(function(bugLabel) {
+      if (bugLabel == issueLabelName) {
+        isBug = true;
+      }
+    });
+
+  }
+  );
 
   // get board name and ID, then listId of To Do list.
   var boardName = getBoardName(title);
@@ -54,7 +65,11 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
         boardId = getBoardId(response, name); 
         if (boardId) {
           getLists(apiKey, apiToken, boardId).then(function(response) { 
-            listId = getToDoList(response, boardId);
+            if(isBug) {
+              listId = getBugList(response);
+            } else {
+              listId = getToDoList(response);
+            }
             if (listId) {
               getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
                 const trelloLabels = response;
@@ -208,12 +223,23 @@ function getBoardId(boards, boardName) {
     return null
 }
 
-function getToDoList(lists, boardId) {
+function getToDoList(lists) {
   console.log("Enter getToDo")
   // Get the list ID of the "To Do" list in the board
   for (var ii=0; ii<lists.length; ii++) {
     var myList = lists[ii];
-    if (myList.name.toLowerCase() == "to do") {
+    if (myList.name.toLowerCase() == "todo") {
+      return myList.id
+    }
+  }
+  return null
+}
+
+function getBugList(lists) {
+  console.log("Enter getBugList")
+  for (var ii=0; ii<lists.length; ii++) {
+    var myList = lists[ii];
+    if (myList.name.toLowerCase() == "bug") {
       return myList.id
     }
   }
