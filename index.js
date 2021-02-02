@@ -26,7 +26,7 @@ try {
 }
 
 function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
-  const bugLabels = JSON.parse(process.env['BUG_LABELS']);
+  const bugLabels = process.env['BUG_LABELS'].split(',');
   // const listId = process.env['TRELLO_LIST_ID'];
   const issue = github.context.payload.issue
   const number = issue.number;
