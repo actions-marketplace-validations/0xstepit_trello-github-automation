@@ -6,17 +6,18 @@ try {
   const apiKey = process.env['TRELLO_API_KEY'];
   const apiToken = process.env['TRELLO_API_TOKEN'];
   const boardId = process.env['TRELLO_BOARD_ID'];
+  const memberMap = JSON.parse(process.env['TRELLO_MEMBER_MAP']); // github username: trello username 
   const action = core.getInput('trello-action');
 
   switch (action) {
     case 'create_card_when_issue_opened':
-      createCardWhenIssueOpen(apiKey, apiToken, boardId);
+      createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap);
       break;
     case 'move_card_when_pull_request_opened':
-      moveCardWhenPullRequestOpen(apiKey, apiToken, boardId);
+      moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap);
       break;
     case 'move_card_when_pull_request_closed':
-      moveCardWhenPullRequestClose(apiKey, apiToken, boardId);
+      moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap);
       break;
 
   }
@@ -24,7 +25,7 @@ try {
   core.setFailed(error.message);
 }
 
-function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
+function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
   // const listId = process.env['TRELLO_LIST_ID'];
   const issue = github.context.payload.issue
   const number = issue.number;
@@ -71,7 +72,7 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId) {
                   const memberIds = [];
                   assignees.forEach(function(assignee) {
                     members.forEach(function(member) {
-                      if (member.username == assignee) {
+                      if (member.username == memberMap[assignee]) {
                         memberIds.push(member.id)
                       }
                     });
