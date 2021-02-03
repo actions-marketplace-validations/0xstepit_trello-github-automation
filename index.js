@@ -188,7 +188,7 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
                   getCardsOfBoard(apiKey, apiToken, boardId).then(function(response) {
                     var targetTitle = title;
                     const fromTitle = github.context.payload.changes.title;
-                    if(fromTitle == null) {
+                    if(fromTitle != null) {
                       targetTitle = fromTitle;
                     }
                     const cards = response;
