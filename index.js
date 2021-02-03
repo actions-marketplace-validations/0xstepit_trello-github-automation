@@ -197,9 +197,6 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
                         return true;
                       }
                     });
-                    const cardParams = {
-                      destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
-                    }
               
                     if (cardId) {
                       updateCard(apiKey, apiToken, cardId, cardParams).then(function(response) {
