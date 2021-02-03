@@ -186,12 +186,16 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
                   }
 
                   getCardsOfBoard(apiKey, apiToken, boardId).then(function(response) {
-                    const fromTitle = github.context.payload.changes.title.from.replace(boardName, "").replace("[]","");
+                    var targetTitle = title;
+                    const fromTitle = github.context.payload.changes.title;
+                    if(fromTitle == null) {
+                      targetTitle = fromTitle;
+                    }
                     const cards = response;
                     let cardId;
                     let existingMemberIds = [];
                     cards.some(function(card) {
-                      if (card.name == `[#${number}] ${fromTitle}`) {
+                      if (card.name == `[#${number}] ${targetTitle}`) {
                         cardId = card.id;
                         existingMemberIds = card.idMembers;
                         return true;
