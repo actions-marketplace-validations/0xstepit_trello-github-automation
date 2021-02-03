@@ -13,6 +13,9 @@ try {
     case 'create_card_when_issue_opened':
       createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap);
       break;
+    case 'change_card_when_issue_edited':
+      changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap);
+      break;
     case 'move_card_when_pull_request_opened':
       moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap);
       break;
@@ -102,6 +105,114 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
                     removeCover(apiKey, apiToken, cardId);
                     console.dir(response);
                   });
+                });
+              });
+            }
+          });
+        } 
+      }
+    });
+  }
+}
+
+function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
+  const bugLabels = process.env['BUG_LABELS'].split(',');
+  const issue = github.context.payload.issue
+  const number = issue.number;
+  var title = issue.title;
+  const description = issue.body;
+  const url = issue.html_url;
+  const assignees = issue.assignees.map(assignee => assignee.login);
+  const issueLabelNames = issue.labels.map(label => label.name);
+  var isBug = false;
+  issueLabelNames.forEach(function(issueLabelName){
+    bugLabels.forEach(function(bugLabel) {
+      if (bugLabel == issueLabelName) {
+        isBug = true;
+      }
+    });
+
+  }
+  );
+
+  // get board name and ID, then listId of To Do list.
+  var boardName = getBoardName(title);
+  console.log(boardName);
+
+  // remove boardName from the issue title
+  title = title.replace(boardName, "").replace("[]","");
+  var name;
+  var boardId;
+  var listId;
+  if (boardName) {
+    // split boardName in multiple parts if " & " is present
+    var names = boardName.split(" & ");
+    console.log("Issue duplicates: " + names.length);
+    getBoards(apiKey, apiToken).then(function(response) {    
+      for (var ii=0; ii<names.length; ii++) {
+        name = names[ii];
+        boardId = getBoardId(response, name); 
+        if (boardId) {
+          getLists(apiKey, apiToken, boardId).then(function(response) { 
+            if(isBug) {
+              listId = getBugList(response);
+            } else {
+              listId = getToDoList(response);
+            }
+            if (listId) {
+              getLabelsOfBoard(apiKey, apiToken, boardId).then(function(response) {
+                const trelloLabels = response;
+                const trelloLabelIds = [];
+                issueLabelNames.forEach(function(issueLabelName) {
+                  trelloLabels.forEach(function(trelloLabel) {
+                    if (trelloLabel.name == issueLabelName) {
+                      trelloLabelIds.push(trelloLabel.id);
+                    }
+                  });
+                });
+        
+                getMembersOfBoard(apiKey, apiToken, boardId).then(function(response) {
+                  const members = response;
+                  const memberIds = [];
+                  assignees.forEach(function(assignee) {
+                    members.forEach(function(member) {
+                      if (member.username == memberMap[assignee]) {
+                        memberIds.push(member.id)
+                      }
+                    });
+                  });
+                  const cardParams = {
+                    number: number, title: title, description: description, url: url, memberIds: memberIds.join(), labelIds: trelloLabelIds.join()
+                  }
+
+                  getCardsOfBoard(apiKey, apiToken, boardId).then(function(response) {
+                    const fromTitle = github.context.payload.changes.title.form;
+                    const cards = response;
+                    let cardId;
+                    let existingMemberIds = [];
+                    cards.some(function(card) {
+                      if (card.name == `[#${number}] ${fromTitle}`) {
+                        cardId = card.id;
+                        existingMemberIds = card.idMembers;
+                        return true;
+                      }
+                    });
+                    const cardParams = {
+                      destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+                    }
+              
+                    if (cardId) {
+                      updateCard(apiKey, apiToken, cardId, cardParams).then(function(response) {
+                        // Remove cover from card 
+                        const cardId = response.id;
+                        removeCover(apiKey, apiToken, cardId);
+                        console.dir(response);
+                      });
+                        } else {
+                      core.setFailed('Card not found.');
+                    }
+                  });
+                  
                 });
               });
             }
@@ -309,6 +420,19 @@ function getCardsOfList(apiKey, apiToken, listId) {
   });
 }
 
+function getCardsOfBoard(apiKey, apiToken, boardId) {
+  return new Promise(function(resolve, reject) {
+    request(`https://api.trello.com/1/boards/${boardId}/cards?key=${apiKey}&token=${apiToken}`)
+      .then(function(body) {
+        resolve(JSON.parse(body));
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+  });
+}
+
+
 function createCard(apiKey, apiToken, listId, params) {
   const options = {
     method: 'POST',
@@ -323,7 +447,7 @@ function createCard(apiKey, apiToken, listId, params) {
       'urlSource': params.url,
       'idMembers': params.memberIds,
       'idLabels': params.labelIds,
-      'pos': 1
+      'pos': 'bottom',
     },
     json: true
   }
@@ -331,6 +455,29 @@ function createCard(apiKey, apiToken, listId, params) {
     request(options)
       .then(function(body) {
         resolve(body);
+      })
+      .catch(function(error) {
+        reject(error);
+      })
+  });
+}
+
+function updateCard(apiKey, apiToken, cardId, params) {
+  const options = {
+    method: 'PUT',
+    url: `https://api.trello.com/1/cards/${cardId}?key=${apiKey}&token=${apiToken}`,
+    form: {
+      'name': `[#${params.number}] ${params.title}`,
+      'desc': params.description,
+      'urlSource': params.url,
+      'idMembers': params.memberIds,
+      'idLabels': params.labelIds,
+    }
+  }
+  return new Promise(function(resolve, reject) {
+    request(options)
+      .then(function(body) {
+        resolve(JSON.parse(body));
       })
       .catch(function(error) {
         reject(error);
