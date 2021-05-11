@@ -35,11 +35,14 @@ This moves Trello card when pull request closed.
 
 `TRELLO_BOARD_ID`: Your Trello board ID
 
-`TRELLO_LIST_ID`: Your Trello list ID (only: create_card_when_issue_open)
+`BUG_LABELS`: bug,fixme
+
+*Will use TODO List unless label identifies as bug
+`TRELLO_TODO_LIST_ID`: Your Trello TO DO list ID (only: create_card_when_issue_open)
+
+`TRELLO_BUG_LIST_ID`: Your Trello Bug list ID (only: create_card_when_issue_open)
 
 `TRELLO_MEMBER_MAP`: Map of GitHub Username -> Trello Username '["gh_user:tr_user", "bob_github:bob_trello"]'
-
-`BUG_LABELS`: bug,fixme
 
 `TRELLO_DEPARTURE_LIST_IDS`: Your Trello list ID to move from (only: create_card_when_issue_open, move_card_when_pull_request_closed)
 
