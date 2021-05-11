@@ -117,7 +117,6 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
   );
 
   var listId;
-  var listId;
   if (isBug) {
     listId = bugListId;
   } else {
@@ -159,10 +158,12 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
           const cards = response;
           let cardId;
           let existingMemberIds = [];
+          let cardData;
           cards.some(function (card) {
             if (card.name == `[#${number}] ${targetTitle}`) {
               cardId = card.id;
               existingMemberIds = card.idMembers;
+              cardData = card;
               return true;
             }
           });
@@ -173,6 +174,8 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
               const cardId = response.id;
               removeCover(apiKey, apiToken, cardId);
               console.dir(response);
+              // todo: Move card if bug label changed
+              console.log('CardData', cardData);
             });
           } else {
             core.setFailed('Card not found.');
