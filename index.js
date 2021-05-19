@@ -11,7 +11,7 @@ try {
   let memberMap = {};
   rawMemberMap.map((row) => {
     row = row.split(':');
-    memberMap[row[0]] = row[1];
+    memberMap[row[0].toLowerCase()] = row[1].toLowerCase();
   });
 
   console.log('Member Map', memberMap);
@@ -79,7 +79,9 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
         const members = response;
         const memberIds = [];
         assignees.forEach(function (assignee) {
+          assignee = assignee.toLowerCase();
           members.forEach(function (member) {
+            member.username = member.username.toLowerCase();
             if (member.username == memberMap[assignee]) {
               memberIds.push(member.id)
             }
@@ -147,7 +149,9 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
         console.log('Trello Members', members);
         const memberIds = [];
         assignees.forEach(function (assignee) {
+          assignee = assignee.toLowerCase();
           members.forEach(function (member) {
+            member.username = member.username.toLowerCase();
             if (member.username == memberMap[assignee]) {
               memberIds.push(member.id)
             }
@@ -206,7 +210,9 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
       const members = response;
       const additionalMemberIds = [];
       reviewers.forEach(function (reviewer) {
+        reviewer = reviewer.toLowerCase();
         members.forEach(function (member) {
+          member.username = member.username.toLowerCase();
           if (member.username == memberMap[reviewer]) {
             additionalMemberIds.push(member.id);
           }
@@ -258,7 +264,9 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
       const members = response;
       const additionalMemberIds = [];
       reviewers.forEach(function (reviewer) {
+        reviewer = reviewer.toLowerCase();
         members.forEach(function (member) {
+          member.username = member.username.toLowerCase();
           if (member.username == memberMap[reviewer]) {
             additionalMemberIds.push(member.id);
           }
