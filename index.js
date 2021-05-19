@@ -6,9 +6,13 @@ try {
   const apiKey = process.env['TRELLO_API_KEY'];
   const apiToken = process.env['TRELLO_API_TOKEN'];
   const boardId = process.env['TRELLO_BOARD_ID'];
-  const memberMap = JSON.parse(process.env['TRELLO_MEMBER_MAP']); // github username: trello username 
+  const rawMemberMap = JSON.parse(process.env['TRELLO_MEMBER_MAP']); // github username: trello username 
   const action = core.getInput('trello-action');
-
+  let memberMap = {};
+  rawMemberMap.map((row) => {
+    row = row.split(':');
+    memberMap[row[0]] = row[1];
+  });
 
   console.log('Member Map', memberMap);
   console.log('Action:', action);
@@ -152,16 +156,11 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
         }
 
         getCardsOfBoard(apiKey, apiToken, boardId).then(function (response) {
-          var targetTitle = title;
-          const fromTitle = github.context.payload.changes.title;
-          if (fromTitle != null) {
-            targetTitle = fromTitle;
-          }
+          // console.log('Github Payload', github.context.payload);
           const cards = response;
           let cardId;
           let existingMemberIds = [];
           let cardData;
-          // console.log('Github Payload', github.context.payload);
           cards.some(function (card) {
             // console.log('Card Check', card);
             if (card.name.startsWith(`[#${number}]`)) {
