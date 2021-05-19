@@ -161,7 +161,9 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
           let cardId;
           let existingMemberIds = [];
           let cardData;
+          console.log('Github Payload', github.context.payload);
           cards.some(function (card) {
+            console.log('Card Check', card);
             if (card.name == `[#${number}] ${targetTitle}`) {
               cardId = card.id;
               existingMemberIds = card.idMembers;
