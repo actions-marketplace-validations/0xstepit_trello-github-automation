@@ -172,6 +172,7 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
           });
 
           if (cardId) {
+            console.log('CardParams', cardParams);
             updateCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
               // Remove cover from card 
               const cardId = response.id;
