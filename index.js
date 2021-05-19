@@ -98,6 +98,8 @@ function createCardWhenIssueOpen(apiKey, apiToken, boardId, memberMap) {
 
 function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
   const bugLabels = process.env['BUG_LABELS'].split(',');
+  const todoListId = process.env['TRELLO_TODO_LIST_ID'];
+  const bugListId = process.env['TRELLO_BUG_LIST_ID'];
   const issue = github.context.payload.issue
   const number = issue.number;
   var title = issue.title;
@@ -195,14 +197,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const url = pullRequest.html_url;
   const reviewers = pullRequest.requested_reviewers.map(reviewer => reviewer.login);
 
-  var listId;
-  if (isBug) {
-    listId = bugListId;
-  } else {
-    listId = todoListId;
-  }
-  console.log('ListID', listId);
-  if (listId) {
+  if (destinationListId) {
     getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
       const members = response;
       const additionalMemberIds = [];
@@ -254,14 +249,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
 
   // get board name and ID, then listId of To Do list.
   var title = pullRequest.issue.title;
-  var listId;
-  if (isBug) {
-    listId = bugListId;
-  } else {
-    listId = todoListId;
-  }
-  console.log('ListID', listId);
-  if (listId) {
+  if (destinationListId) {
     getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
       const members = response;
       const additionalMemberIds = [];
