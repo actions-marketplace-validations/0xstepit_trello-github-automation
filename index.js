@@ -143,6 +143,8 @@ function changeCardWhenIssueEdited(apiKey, apiToken, boardId, memberMap) {
 
       getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
         const members = response;
+        console.log('GH Assignees', assignees);
+        console.log('Trello Members', members);
         const memberIds = [];
         assignees.forEach(function (assignee) {
           members.forEach(function (member) {
