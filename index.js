@@ -205,8 +205,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const matches = [...pullRequest.body.matchAll(regex)];
   let issues = [];
   matches.forEach((m) => {
-    console.log('Match', m);
-    issues.push(m.slice(1));
+    issues.push(m[0]);
   })
   console.log('PR Issues', issues);
   const url = pullRequest.html_url;
@@ -271,7 +270,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
   const matches = [...pullRequest.body.matchAll(regex)];
   let issues = [];
   matches.forEach((m) => {
-    issues.push(m.slice(1));
+    issues.push(m[0]);
   })
   console.log('PR Issues', issues);
   const url = pullRequest.html_url;
