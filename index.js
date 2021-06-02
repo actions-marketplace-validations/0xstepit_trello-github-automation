@@ -235,7 +235,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
           if (cards && cards.length) {
             cards.forEach(function (card) {
               let card_match = card.name.match(/#[0-9]+/);
-              if (card_match.length) {
+              if (card_match && card_match.length) {
                 const card_issue_number = card_match[0].slice(1);
                 if (issues.includes(card_issue_number)) {
                   let cardId = card.id;
@@ -298,7 +298,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
           if (cards && cards.length) {
             cards.forEach(function (card) {
               let card_match = card.name.match(/#[0-9]+/);
-              if (card_match.length) {
+              if (card_match && card_match.length) {
                 const card_issue_number = card_match[0].slice(1);
                 if (issues.includes(card_issue_number)) {
                   let cardId = card.id;
