@@ -202,7 +202,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const destinationListId = process.env['TRELLO_DESTINATION_LIST_ID'];
   const pullRequest = github.context.payload.pull_request;
   const regex = /#[0-9]+/g;
-  const matches = [...str.matchAll(regex)];
+  const matches = [...pullRequest.body.matchAll(regex)];
   let issues = [];
   matches.forEach((m) => {
     issues.push(m.slice(1));
@@ -263,7 +263,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
   const destinationListId = process.env['TRELLO_DESTINATION_LIST_ID'];
   const pullRequest = github.context.payload.pull_request
   const regex = /#[0-9]+/g;
-  const matches = [...str.matchAll(regex)];
+  const matches = [...pullRequest.body.matchAll(regex)];
   let issues = [];
   matches.forEach((m) => {
     issues.push(m.slice(1));
