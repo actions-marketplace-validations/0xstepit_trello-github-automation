@@ -204,10 +204,12 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const issue_number = pullRequest.body.match(/#[0-9]+/)[0].slice(1);
   const url = pullRequest.html_url;
   const reviewers = pullRequest.requested_reviewers.map(reviewer => reviewer.login);
+console.log('PR', pullRequest);
 
   if (destinationListId) {
     getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
       const members = response;
+      console.log('Members', members);
       const additionalMemberIds = [];
       reviewers.forEach(function (reviewer) {
         reviewer = reviewer.toLowerCase();
@@ -222,6 +224,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
       departureListIds.foreach(departureListId => {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
+          console.log('Cards', cards);
           let cardId;
           let existingMemberIds = [];
           cards.some(function (card) {
@@ -235,9 +238,10 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
           const cardParams = {
             destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
           }
-
+          console.log('cardParams', cardParams);
           if (cardId) {
             putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
+              console.log('Card Updated', response);
               addUrlSourceToCard(apiKey, apiToken, cardId, url);
             });
           } else {
