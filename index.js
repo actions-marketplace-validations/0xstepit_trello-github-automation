@@ -204,7 +204,8 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const issue_number = pullRequest.body.match(/#[0-9]+/)[0].slice(1);
   const url = pullRequest.html_url;
   const reviewers = pullRequest.requested_reviewers.map(reviewer => reviewer.login);
-console.log('PR', pullRequest);
+  console.log('departureListIds', departureListIds);
+  console.log('PR', pullRequest);
 
   if (destinationListId) {
     getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
