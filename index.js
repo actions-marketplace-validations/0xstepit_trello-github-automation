@@ -234,20 +234,23 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
           console.log('Cards', cards.length);
           if (cards && cards.length) {
             cards.forEach(function (card) {
-              const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
-              if (issues.includes(card_issue_number)) {
-                let cardId = card.id;
-                if (cardId) {
-                  console.log('Card Found', card);
-                  let existingMemberIds = card.idMembers;
-                  const cardParams = {
-                    destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+              let card_match = card.name.match(/#[0-9]+/);
+              if (card_match.length) {
+                const card_issue_number = card_match[0].slice(1);
+                if (issues.includes(card_issue_number)) {
+                  let cardId = card.id;
+                  if (cardId) {
+                    console.log('Card Found', card);
+                    let existingMemberIds = card.idMembers;
+                    const cardParams = {
+                      destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+                    }
+                    console.log('cardParams', cardParams);
+                    putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
+                      console.log('Card Updated', response);
+                      addUrlSourceToCard(apiKey, apiToken, cardId, url);
+                    });
                   }
-                  console.log('cardParams', cardParams);
-                  putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
-                    console.log('Card Updated', response);
-                    addUrlSourceToCard(apiKey, apiToken, cardId, url);
-                  });
                 }
               }
             });
@@ -294,16 +297,19 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
           console.log('Cards', cards.length);
           if (cards && cards.length) {
             cards.forEach(function (card) {
-              const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
-              if (issues.includes(card_issue_number)) {
-                let cardId = card.id;
-                if (cardId) {
-                  console.log('Card Found', card);
-                  let existingMemberIds = card.idMembers;
-                  const cardParams = {
-                    destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+              let card_match = card.name.match(/#[0-9]+/);
+              if (card_match.length) {
+                const card_issue_number = card_match[0].slice(1);
+                if (issues.includes(card_issue_number)) {
+                  let cardId = card.id;
+                  if (cardId) {
+                    console.log('Card Found', card);
+                    let existingMemberIds = card.idMembers;
+                    const cardParams = {
+                      destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+                    }
+                    putCard(apiKey, apiToken, cardId, cardParams);
                   }
-                  putCard(apiKey, apiToken, cardId, cardParams);
                 }
               }
             });
