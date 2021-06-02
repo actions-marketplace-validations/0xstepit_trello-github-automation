@@ -205,13 +205,15 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const matches = [...pullRequest.body.matchAll(regex)];
   let issues = [];
   matches.forEach((m) => {
+    console.log('Match', m);
     issues.push(m.slice(1));
   })
   console.log('PR Issues', issues);
   const url = pullRequest.html_url;
   const reviewers = pullRequest.requested_reviewers.map(reviewer => reviewer.login);
   console.log('departureListIds', departureListIds);
-  console.log('PR', pullRequest);
+  var title = pullRequest.issue.title;
+  console.log('PR', title);
 
   if (destinationListId) {
     getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
@@ -277,6 +279,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
 
   // get board name and ID, then listId of To Do list.
   var title = pullRequest.issue.title;
+  console.log('PR', title);
   if (destinationListId) {
     getMembersOfBoard(apiKey, apiToken, boardId).then(function (response) {
       const members = response;
