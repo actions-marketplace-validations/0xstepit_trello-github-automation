@@ -240,7 +240,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
                 if (issues.includes(`#${card_issue_number}`)) {
                   let cardId = card.id;
                   if (cardId) {
-                    console.log('Card Found', card);
+                    console.log('Card Found', card.name);
                     let existingMemberIds = card.idMembers;
                     const cardParams = {
                       destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
@@ -302,7 +302,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
                 if (issues.includes(`#${card_issue_number}`)) {
                   let cardId = card.id;
                   if (cardId) {
-                    console.log('Card Found', card);
+                    console.log('Card Found', card.name);
                     let existingMemberIds = card.idMembers;
                     const cardParams = {
                       destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
