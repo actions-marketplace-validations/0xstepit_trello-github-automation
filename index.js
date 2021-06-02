@@ -201,7 +201,13 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
   const departureListIds = process.env['TRELLO_DEPARTURE_LIST_IDS'].split(',');
   const destinationListId = process.env['TRELLO_DESTINATION_LIST_ID'];
   const pullRequest = github.context.payload.pull_request;
-  const issue_number = pullRequest.body.match(/#[0-9]+/)[0].slice(1);
+  const regex = /#[0-9]+/g;
+  const matches = [...str.matchAll(regex)];
+  let issues = [];
+  matches.forEach((m) => {
+    issues.push(m.slice(1));
+  })
+  console.log('PR Issues', issues);
   const url = pullRequest.html_url;
   const reviewers = pullRequest.requested_reviewers.map(reviewer => reviewer.login);
   console.log('departureListIds', departureListIds);
@@ -226,24 +232,26 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
           console.log('Cards', cards.length);
-          cards.forEach(function (card) {
-            const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
-            if (card_issue_number == issue_number) {
-              let cardId = card.id;
-              let existingMemberIds = card.idMembers;
-              if (cardId) {
-                console.log('Card Found', card);
-                const cardParams = {
-                  destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+          if (cards && cards.length) {
+            cards.forEach(function (card) {
+              const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
+              if (issues.includes(card_issue_number)) {
+                let cardId = card.id;
+                if (cardId) {
+                  console.log('Card Found', card);
+                  let existingMemberIds = card.idMembers;
+                  const cardParams = {
+                    destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+                  }
+                  console.log('cardParams', cardParams);
+                  putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
+                    console.log('Card Updated', response);
+                    addUrlSourceToCard(apiKey, apiToken, cardId, url);
+                  });
                 }
-                console.log('cardParams', cardParams);
-                putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
-                  console.log('Card Updated', response);
-                  addUrlSourceToCard(apiKey, apiToken, cardId, url);
-                });
               }
-            }
-          });
+            });
+          }
         });
       });
     });
@@ -254,7 +262,13 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
   const departureListIds = process.env['TRELLO_DEPARTURE_LIST_IDS'];
   const destinationListId = process.env['TRELLO_DESTINATION_LIST_ID'];
   const pullRequest = github.context.payload.pull_request
-  const issue_number = pullRequest.body.match(/#[0-9]+/)[0].slice(1);
+  const regex = /#[0-9]+/g;
+  const matches = [...str.matchAll(regex)];
+  let issues = [];
+  matches.forEach((m) => {
+    issues.push(m.slice(1));
+  })
+  console.log('PR Issues', issues);
   const url = pullRequest.html_url;
   const reviewers = pullRequest.requested_reviewers.map(reviewer => reviewer.login);
 
@@ -277,20 +291,23 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
       departureListIds.forEach(departureListId => {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
-          cards.forEach(function (card) {
-            const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
-            if (card_issue_number == issue_number) {
-              let cardId = card.id;
-              let existingMemberIds = card.idMembers;
-              const cardParams = {
-                destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+          console.log('Cards', cards.length);
+          if (cards && cards.length) {
+            cards.forEach(function (card) {
+              const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
+              if (issues.includes(card_issue_number)) {
+                let cardId = card.id;
+                if (cardId) {
+                  console.log('Card Found', card);
+                  let existingMemberIds = card.idMembers;
+                  const cardParams = {
+                    destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+                  }
+                  putCard(apiKey, apiToken, cardId, cardParams);
+                }
               }
-              if (cardId) {
-                putCard(apiKey, apiToken, cardId, cardParams);
-              }
-            }
-          });
-
+            });
+          }
         });
       });
     });
