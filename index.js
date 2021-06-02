@@ -225,29 +225,25 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
       departureListIds.forEach(departureListId => {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
-          console.log('Cards', cards);
-          let cardId;
-          let existingMemberIds = [];
-          cards.some(function (card) {
+          console.log('Cards', cards.length);
+          cards.forEach(function (card) {
             const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
             if (card_issue_number == issue_number) {
-              cardId = card.id;
-              existingMemberIds = card.idMembers;
-              return true;
+              let cardId = card.id;
+              let existingMemberIds = card.idMembers;
+              if (cardId) {
+                console.log('Card Found', card);
+                const cardParams = {
+                  destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+                }
+                console.log('cardParams', cardParams);
+                putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
+                  console.log('Card Updated', response);
+                  addUrlSourceToCard(apiKey, apiToken, cardId, url);
+                });
+              }
             }
           });
-          const cardParams = {
-            destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
-          }
-          console.log('cardParams', cardParams);
-          if (cardId) {
-            putCard(apiKey, apiToken, cardId, cardParams).then(function (response) {
-              console.log('Card Updated', response);
-              addUrlSourceToCard(apiKey, apiToken, cardId, url);
-            });
-          } else {
-            core.setFailed('Card not found.');
-          }
         });
       });
     });
@@ -281,25 +277,20 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
       departureListIds.forEach(departureListId => {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
-          let cardId;
-          let existingMemberIds = [];
-          cards.some(function (card) {
+          cards.forEach(function (card) {
             const card_issue_number = card.name.match(/#[0-9]+/)[0].slice(1);
             if (card_issue_number == issue_number) {
-              cardId = card.id;
-              existingMemberIds = card.idMembers;
-              return true;
+              let cardId = card.id;
+              let existingMemberIds = card.idMembers;
+              const cardParams = {
+                destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
+              }
+              if (cardId) {
+                putCard(apiKey, apiToken, cardId, cardParams);
+              }
             }
           });
-          const cardParams = {
-            destinationListId: destinationListId, memberIds: existingMemberIds.concat(additionalMemberIds).join()
-          }
-    
-          if (cardId) {
-            putCard(apiKey, apiToken, cardId, cardParams);
-          } else {
-            core.setFailed('Card not found.');
-          }
+
         });
       });
     });
