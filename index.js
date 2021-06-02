@@ -222,7 +222,7 @@ function moveCardWhenPullRequestOpen(apiKey, apiToken, boardId, memberMap) {
         });
       });
 
-      departureListIds.foreach(departureListId => {
+      departureListIds.forEach(departureListId => {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
           console.log('Cards', cards);
@@ -278,7 +278,7 @@ function moveCardWhenPullRequestClose(apiKey, apiToken, boardId, memberMap) {
         });
       });
   
-      departureListIds.foreach(departureListId => {
+      departureListIds.forEach(departureListId => {
         getCardsOfList(apiKey, apiToken, departureListId).then(function (response) {
           const cards = response;
           let cardId;
