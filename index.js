@@ -4,7 +4,6 @@ const github = require('@actions/github');
 const request = require('request-promise-native');
 
 try {
-  console.log('Action:', action);
   const apiKey = process.env['TRELLO_API_KEY'];
   const apiToken = process.env['TRELLO_API_TOKEN'];
   const boardId = process.env['TRELLO_BOARD_ID'];
@@ -17,6 +16,7 @@ try {
     memberMap[row[0].toLowerCase()] = row[1].toLowerCase();
   });
 
+  console.log('Action:', action);
   switch (action) {
     case 'create_card_when_issue_opened':
       createCardWhenIssueOpen(apiKey, apiToken, boardId, listId, memberMap);
