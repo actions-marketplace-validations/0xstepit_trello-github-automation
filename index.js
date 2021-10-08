@@ -22,7 +22,7 @@ try {
     case 'create_card_when_issue_opened':
       createCard(env);
       break;
-    case 'change_card_when_issue_edited':
+    case 'modify_card_when_issue_edited':
       editCard(env);
       break;
     case 'move_card_when_issue_closed':
