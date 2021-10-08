@@ -1,26 +1,25 @@
 {
   "name": "trello-github-actions",
-  "version": "1.0.0",
-  "description": "Link Trello and Github Actions",
+  "version": "2.2.0",
+  "description": "Integrate Github and Trello Issue",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jessicazu/trello-github-actions.git"
+    "url": "git+https://github.com/CyanRYi/trello-github-actions.git"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Cyan Raphael Yi",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jessicazu/trello-github-actions/issues"
+    "url": "https://github.com/CyanRYi/trello-github-actions/issues"
   },
-  "homepage": "https://github.com/jessicazu/trello-github-actions#readme",
+  "homepage": "https://github.com/CyanRYi/trello-github-actions#readme",
   "dependencies": {
     "@actions/core": "^1.2.2",
     "@actions/github": "^2.2.0",
-    "request": "^2.88.2",
-    "request-promise-native": "^1.0.8"
+    "axios": "^0.22.0"
   }
 }
