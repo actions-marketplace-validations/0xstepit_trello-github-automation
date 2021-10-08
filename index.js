@@ -4,6 +4,7 @@ const github = require('@actions/github');
 const request = require('request-promise-native');
 
 try {
+  console.log('Action:', action);
   const apiKey = process.env['TRELLO_API_KEY'];
   const apiToken = process.env['TRELLO_API_TOKEN'];
   const boardId = process.env['TRELLO_BOARD_ID'];
@@ -16,8 +17,6 @@ try {
     memberMap[row[0].toLowerCase()] = row[1].toLowerCase();
   });
 
-  console.log('Member Map', memberMap);
-  console.log('Action:', action);
   switch (action) {
     case 'create_card_when_issue_opened':
       createCardWhenIssueOpen(apiKey, apiToken, boardId, listId, memberMap);
@@ -35,17 +34,13 @@ try {
 
   }
 } catch (error) {
-  console.log('Error', error);
+  console.error('Error', error);
   core.setFailed(error.message);
 }
 
 async function createCardWhenIssueOpen(apiKey, apiToken, boardId, listId,
     memberMap) {
   const issue = github.context.payload.issue
-  const number = issue.number;
-  const title = issue.title;
-  const description = issue.body;
-  const url = issue.html_url;
 
   const labelIds = await getLabelsOfBoard(apiKey, apiToken, boardId)
   .then(function (response) {
@@ -55,26 +50,23 @@ async function createCardWhenIssueOpen(apiKey, apiToken, boardId, listId,
         trelloLabel => trelloLabel.name === labelName))
     .map(trelloLabel => trelloLabel.id);
   });
+  console.log(labelIds);
 
   const memberIds = await getMembersOfBoard(apiKey, apiToken, boardId)
   .then(function (response) {
     console.log(response);
     return issue.assignees
-    .map(assignee => assignee.login)
-    .map(assignee => assignee.toLowerCase())
-    .map(assignee => memberMap[assignee])
-    .map(assignee => response.map(member => member.username)
-                            .map(member => member.toLowerCase())
-                            .find(member => member.name === assignee)
-    )
+    .map(assignee => memberMap[assignee.login.toLowerCase()])
+    .map(assignee => response.find(member => member.username.toLowerCase() === assignee))
+    .filter(member => Boolean(member))
     .map(member => member.id);
   });
 
   const cardParams = {
-    number: number,
-    title: title,
-    description: description,
-    url: url,
+    number: issue.number,
+    title: issue.title,
+    description: issue.description,
+    url: issue.html_url,
     memberIds: memberIds.join(),
     labelIds: labelIds.join()
   }
