@@ -1,6 +1,6 @@
 {
-  "name": "trello-github-actions",
-  "version": "2.2.0",
+  "name": "trello-github-integration",
+  "version": "3.0.0",
   "description": "Integrate Github and Trello Issue",
   "main": "index.js",
   "scripts": {
@@ -8,15 +8,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CyanRYi/trello-github-actions.git"
+    "url": "git+https://github.com/CyanRYi/trello-github-integration.git"
   },
   "keywords": [],
   "author": "Cyan Raphael Yi",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/CyanRYi/trello-github-actions/issues"
+    "url": "https://github.com/CyanRYi/trello-github-integration/issues"
   },
-  "homepage": "https://github.com/CyanRYi/trello-github-actions#readme",
+  "homepage": "https://github.com/CyanRYi/trello-github-integration#readme",
   "dependencies": {
     "@actions/core": "^1.2.2",
     "@actions/github": "^2.2.0",

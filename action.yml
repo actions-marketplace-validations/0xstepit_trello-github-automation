@@ -1,6 +1,6 @@
-name: 'Integrate Github and Trello Issue'
+name: Integrate Github and Trello Issue
 
-description: 'You can link GitHub issues and pull request with Trello card.'
+description: You can link GitHub issues and pull request with Trello card.
 
 inputs:
   trello-action:
