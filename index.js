@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 const core = require('@actions/core');
 const github = require('@actions/github');
+const axios = require('axios').default;
 
 try {
   const env = {
@@ -34,21 +35,29 @@ try {
 }
 
 function call(env, path, method, body = {}) {
-  let req = {
-    method: method,
+  const instance = axios.create({
+    baseURL: 'https://api.trello.com/1',
+    timeout: 1000,
+    params: {
+      key: env.apiKey,
+      token: env.apiToken
+    },
     headers: {
       'Content-Type': 'application/json'
     },
-    body: body,
+  });
+
+  let req = {
+    url: path,
+    method: method,
+    data: body,
   };
 
-  const url = `https://api.trello.com/1${path}?key=${env.apiKey}&token=${env.apiToken}`;
-
-  console.log("URL: " + url);
+  console.log("URL: " + req.url);
   console.log("Body: " + body);
 
-  return fetch(url, req)
-  .then((response) => response.json());
+  return instance.request(req)
+  .then((response) => response.data);
 }
 
 async function createCard(env) {

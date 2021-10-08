@@ -19,6 +19,7 @@
   "homepage": "https://github.com/CyanRYi/trello-github-actions#readme",
   "dependencies": {
     "@actions/core": "^1.2.2",
-    "@actions/github": "^2.2.0"
+    "@actions/github": "^2.2.0",
+    "axios": "^0.22.0"
   }
 }
