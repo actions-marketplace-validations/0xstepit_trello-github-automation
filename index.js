@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const core = require('@actions/core');
 const github = require('@actions/github');
-const request = require('request-promise-native');
 
 try {
   const env = {
@@ -34,32 +33,22 @@ try {
   core.setFailed(error.message);
 }
 
-function call(env, path, method, body) {
+function call(env, path, method, body = {}) {
   let req = {
     method: method,
-    url: `https://api.trello.com/1${path}?key=${env.apiKey}&token=${env.apiToken}`,
-    json: true
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: body,
   };
 
-  console.log("URL: " + req.url);
+  const url = `https://api.trello.com/1${path}?key=${env.apiKey}&token=${env.apiToken}`;
+
+  console.log("URL: " + url);
   console.log("Body: " + body);
 
-  if (body) {
-    req = {
-      form: body,
-      ...req,
-    }
-  }
-
-  return new Promise(function (resolve, reject) {
-    request(req)
-    .then(function (body) {
-      resolve(body);
-    })
-    .catch(function (error) {
-      reject(error);
-    })
-  });
+  return fetch(url, req)
+  .then((response) => response.json());
 }
 
 async function createCard(env) {
