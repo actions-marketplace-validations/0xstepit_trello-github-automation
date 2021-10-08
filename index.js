@@ -14,7 +14,7 @@ try {
     .map(row => row.toLowerCase())
     .map(row => row.split(":"))
     .reduce((map, data) => map[data[0]] = data[1], {}),
-  }
+  };
 
   const action = core.getInput('trello-action');
   console.log('Action:', action);
@@ -40,6 +40,9 @@ function call(env, path, method, body) {
     url: `https://api.trello.com/1${path}?key=${env.apiKey}&token=${env.apiToken}`,
     json: true
   };
+
+  console.log("URL: " + req.url);
+  console.log("Body: " + body);
 
   if (body) {
     req = {
@@ -91,7 +94,7 @@ async function editCard(env) {
   });
 
   if (!cardId) {
-    return;
+    throw new Error("Card cannot Found");
   }
 
   call(env, `/cards/${cardId}`, "PUT", {
@@ -113,7 +116,7 @@ async function closeCard(env) {
   });
 
   if (!cardId) {
-    return;
+    throw new Error("Card cannot Found");
   }
 
   call(env, `/cards/${cardId}`, "PUT", {
@@ -126,9 +129,10 @@ function getLabelIds(env, labels) {
   .then((body) => JSON.parse(body))
   .then(trelloLabels => {
     return labels
-      .map(label => label.name)
-      .map(labelName => trelloLabels.find(trelloLabel => trelloLabel.name === labelName))
-      .map(trelloLabel => trelloLabel.id)
+    .map(label => label.name)
+    .map(labelName => trelloLabels.find(
+        trelloLabel => trelloLabel.name === labelName))
+    .map(trelloLabel => trelloLabel.id)
   });
 }
 
@@ -137,11 +141,12 @@ function getMemberIds(env, assignees) {
   .then((body) => JSON.parse(body))
   .then(trelloMembers => {
     return assignees
-      .map(assignee => env.memberMap[assignee.login.toLowerCase()])
-      .map(assignee => trelloMembers.find(member => member.username.toLowerCase() === assignee))
-      .filter(member => Boolean(member))
-      .map(member => member.id);
-    });
+    .map(assignee => env.memberMap[assignee.login.toLowerCase()])
+    .map(assignee => trelloMembers.find(
+        member => member.username.toLowerCase() === assignee))
+    .filter(member => Boolean(member))
+    .map(member => member.id);
+  });
 }
 
 function getCards(env) {
