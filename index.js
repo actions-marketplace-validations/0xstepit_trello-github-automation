@@ -58,11 +58,15 @@ async function createCardWhenIssueOpen(apiKey, apiToken, boardId, listId,
 
   const memberIds = await getMembersOfBoard(apiKey, apiToken, boardId)
   .then(function (response) {
+    console.log(response);
     return issue.assignees
     .map(assignee => assignee.login)
     .map(assignee => assignee.toLowerCase())
-    .map(assignee => response.map(member => member.toLowerCase()).find(
-        member => member.name === assignee))
+    .map(assignee => memberMap[assignee])
+    .map(assignee => response.map(member => member.username)
+                            .map(member => member.toLowerCase())
+                            .find(member => member.name === assignee)
+    )
     .map(member => member.id);
   });
 
