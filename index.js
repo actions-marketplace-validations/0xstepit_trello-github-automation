@@ -47,16 +47,11 @@ function call(env, path, method, body = {}) {
     },
   });
 
-  let req = {
+  return instance.request({
     url: path,
     method: method,
     data: body,
-  };
-
-  console.log("URL: " + req.url);
-  console.log("Body: " + body);
-
-  return instance.request(req)
+  })
   .then((response) => response.data);
 }
 
@@ -124,32 +119,27 @@ async function closeCard(env) {
 
 function getLabelIds(env, labels) {
   return call(env, `/boards/${env.boardId}/labels`, "GET")
-  .then((body) => JSON.parse(body))
-  .then(trelloLabels => {
+  .then(data => {
     return labels
     .map(label => label.name)
-    .map(labelName => trelloLabels.find(
-        trelloLabel => trelloLabel.name === labelName))
+    .map(labelName => data.find(each => each.name === labelName))
     .map(trelloLabel => trelloLabel.id)
   });
 }
 
 function getMemberIds(env, assignees) {
   return call(env, `/boards/${env.boardId}/members`, "GET")
-  .then((body) => JSON.parse(body))
-  .then(trelloMembers => {
+  .then(data => {
     return assignees
     .map(assignee => env.memberMap[assignee.login.toLowerCase()])
-    .map(assignee => trelloMembers.find(
-        member => member.username.toLowerCase() === assignee))
+    .map(assignee => data.find(each => each.username.toLowerCase() === assignee))
     .filter(member => Boolean(member))
     .map(member => member.id);
   });
 }
 
 function getCards(env) {
-  return call(env, `/boards/${env.boardId}/cards`, "GET")
-  .then((body) => JSON.parse(body));
+  return call(env, `/boards/${env.boardId}/cards`, "GET");
 }
 
 function removeCover(apiKey, apiToken, cardId) {
