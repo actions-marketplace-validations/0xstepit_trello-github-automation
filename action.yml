@@ -1,6 +1,6 @@
-name: Integrate Github and Trello Issue
+name: Trello & Github Automation
 
-description: You can link GitHub issues and pull request with Trello card.
+description: action to link Github issues and pull requests with Trello cards.
 
 inputs:
   trello-action:
