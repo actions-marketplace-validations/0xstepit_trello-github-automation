@@ -1,27 +1,29 @@
-# trello-github-actions
-You can link GitHub Issues and Pull Request with Trello card.
+# Trello & Github Automation
 
-## Setting Up Environment(Repository Secret)
+This repo contains code to automate the link between GitHub Issues and Pull Request with Trello cards.
 
-1. Access [Trello API key Page](https://trello.com/app-key) and Copy "Key'
-- Paste text into repository secret value with key '**TRELLO_API_KEY**'
+## Setup
 
-2. Click '_Token_' link below API key.(and Copy that)
-- Paste text into repository secret value with key '**TRELLO_API_TOKEN**'
-- You can find your '_Name_' and '_Username_' field in next page, keep your username.
+This action is based on 6 environment variables that must be set at repository level to work. This means that each repository that has to be integrated with Trello  require the setup of these variable. To set these variables you can follo the official [Github guide](https://docs.github.com/en/actions/security-guides/encrypted-secrets).
 
-3. Call API 'GET https://trello.com/1/member/{username}/boards?fields=name&key={apiKey}&token={apiToken}'
-- Choose a Board to link your Repository(Link to Multiple Boards is not Supports)
-- Add _board id_ into repository secret value with key '**TRELLO_BOARD_ID**'
+Required secrets can be obtained after creating a a [Power-up](https://trello.com/power-ups/admin/)
 
-4. Call API 'GET https://trello.com/1/boards/{boardId}/lists?fields=name&key={apiKey}&token={apiToken}'
-- Choose a List to Add card when github Issue Created, Add _list id_ into repository secret value with key '**TRELLO_TODO_LIST_ID**'
-- (Optional) If you want to move card to another list when issue closed, Add _list id_ into repository secret value with key '**TRELLO_DONE_LIST_ID**'
+- **TRELLO_API_KEY**: this is **API key** in the API Key section of the Trello power-up.
 
-5. To Link Github Member and Trello User, Add Mapping information with secret key '**TRELLO_MEMBER_MAP**'.
-- Array that contains String that "{github_login}:{trello_username}"
-- ex) ["gh_login:trello_username", "gh_login2:trello_username2"]
+- **TRELLO_API_TOKEN**: this is the **Secret**
 
+- **TRELLO_BOARD_ID**: this is the board associated with the repository.
+
+- **TRELLO_TODO_LIST_ID**: this is the list where new cards are created.
+
+- **TRELLO_DONE_LIST_ID**: this is the list where cards have to be moved after closing them.
+
+- **TRELLO_MEMBER_MAP**: this is used to match Github users with Trello Users. The value in Github
+have to be filled with the format `["github_user1:trello_user1", "github_user2:trello_user2"]`.
+
+All information associated to the board and lists can be found going to the web browser version of the board and appending ".json" to the url.
+
+![Secrets](/assets/secrets.png)
 
 ## actions
 
@@ -89,7 +91,3 @@ When comment delete, comment matched trello card will be delete.
 ### Example (workflow yml)
 
 [Link](https://github.com/CyanRYi/trello-github-integration-test/tree/master/.github/workflows)
-
-### Developer
-
-Cyan Raphael Yi(cyan.yi@sollabs.tech)
